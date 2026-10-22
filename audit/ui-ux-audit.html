@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marni Alas UI/UX Audit</title>
+<style>
+  :root {
+    --bg: #faf8f4; --surface: #ffffff; --ink: #1d1b18; --soft: #57524a; --line: #e6e0d5;
+    --accent: #8f6419; --high: #b42318; --high-bg: #fde8e6; --med: #9a5b00; --med-bg: #fdf0d9;
+    --low: #2f5f8a; --low-bg: #e6eff8; --info: #4c5560; --info-bg: #eceef1; --ok: #1f7a4a; --ok-bg: #e3f4ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161513; --surface: #1f1d1a; --ink: #f1ede6; --soft: #b7afa3; --line: #34302a;
+      --accent: #d9a64a; --high: #ff8a80; --high-bg: #3a1f1c; --med: #f0b35a; --med-bg: #3a2c16;
+      --low: #8cbcef; --low-bg: #1b2a3a; --info: #c3c9d0; --info-bg: #2a2e33; --ok: #7fd1a3; --ok-bg: #18301f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161513; --surface: #1f1d1a; --ink: #f1ede6; --soft: #b7afa3; --line: #34302a;
+    --accent: #d9a64a; --high: #ff8a80; --high-bg: #3a1f1c; --med: #f0b35a; --med-bg: #3a2c16;
+    --low: #8cbcef; --low-bg: #1b2a3a; --info: #c3c9d0; --info-bg: #2a2e33; --ok: #7fd1a3; --ok-bg: #18301f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.45rem; margin: 56px 0 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.08rem; margin: 0; line-height: 1.35; }
+  p { margin: 0 0 12px; }
+  a { color: var(--accent); }
+  code { font: 0.86em/1.4 ui-monospace, Consolas, monospace; background: var(--info-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  .meta { color: var(--soft); margin-bottom: 28px; }
+  .lede { font-size: 1.1rem; color: var(--soft); max-width: 70ch; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 24px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .stat b { display: block; font-size: 1.9rem; line-height: 1.1; }
+  .stat span { color: var(--soft); font-size: 0.9rem; }
+  .stat.high b { color: var(--high); } .stat.med b { color: var(--med); } .stat.low b { color: var(--low); }
+  .top5 { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 18px 22px; }
+  .top5 ol { margin: 8px 0 0; padding-left: 20px; } .top5 li { margin: 6px 0; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+  nav.toc a { text-decoration: none; border: 1px solid var(--line); background: var(--surface); padding: 5px 12px; border-radius: 999px; font-size: 0.9rem; color: var(--ink); }
+  .finding { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 14px 0; }
+  .fhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 10px; margin-bottom: 8px; }
+  .id { font: 600 0.8rem ui-monospace, Consolas, monospace; color: var(--soft); }
+  .sev { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
+  .sev.high { color: var(--high); background: var(--high-bg); } .sev.med { color: var(--med); background: var(--med-bg); }
+  .sev.low { color: var(--low); background: var(--low-bg); } .sev.info { color: var(--info); background: var(--info-bg); }
+  .pages { font-size: 0.85rem; color: var(--soft); width: 100%; }
+  .finding dl { display: grid; grid-template-columns: 90px 1fr; gap: 6px 14px; margin: 10px 0 0; }
+  .finding dt { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--soft); padding-top: 3px; }
+  .finding dd { margin: 0; }
+  .finding ul { margin: 4px 0; padding-left: 18px; } .finding li { margin: 3px 0; }
+  figure { margin: 14px 0 0; }
+  figure img { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; }
+  figure.m img { max-width: 300px; }
+  figcaption { font-size: 0.82rem; color: var(--soft); margin-top: 6px; }
+  .pair { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+  .pair figure { margin-top: 14px; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--soft); }
+  .scroll { overflow-x: auto; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; border: 1px solid var(--line); }
+  .pass { background: var(--ok-bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px 20px; }
+  .pass li { margin: 4px 0; }
+  .done { color: var(--ok); font-weight: 600; }
+  @media (max-width: 560px) { .finding dl { grid-template-columns: 1fr; gap: 2px; } .finding dt { padding-top: 8px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Marni Alas Retreat: UI &amp; UX audit</h1>
+<p class="meta">22 October 2026 · Production build (<code>next build</code> + <code>next start</code>), Next.js 16.4.2 · Tested with agent-browser 0.38.2 (Vercel Labs) on headless Chrome</p>
+<p class="lede">I opened all 12 page types at desktop (1440×900) and mobile (390×844) widths and took full-page screenshots. A script then measured contrast, image scaling and cropping, tap-target sizes, heading order, horizontal overflow and console errors on every page. Each finding below has its severity, the pages it affects, the cause and a suggested fix.</p>
+
+<div class="stats">
+  <div class="stat high"><b>5</b><span>High</span></div>
+  <div class="stat med"><b>14</b><span>Medium</span></div>
+  <div class="stat low"><b>18</b><span>Low</span></div>
+  <div class="stat"><b>24</b><span>Page loads tested</span></div>
+  <div class="stat"><b>0</b><span>Console errors</span></div>
+</div>
+
+<div class="top5">
+  <strong>Fix these five first</strong>
+  <ol>
+    <li><strong>The gold text is too faint to read comfortably.</strong> It fails WCAG contrast on every page (2.8:1 on white). <a href="#A1">A1</a></li>
+    <li><strong>Several images are wrong for their spot:</strong> a screenshot of the Treatwell website, a poster full of baked-in text, a stock before/after collage with a visible seam and a uniform logo from another brand. <a href="#B1">B1</a></li>
+    <li><strong>Hero and carousel photos are low-resolution and stretched,</strong> so they look soft or blurry. <a href="#B2">B2</a></li>
+    <li><strong>The last section of each page is stretched to fill the screen.</strong> This leaves big empty bands and squeezes landscape photos into tall, blurry slivers. <a href="#C1">C1</a> <a href="#B3">B3</a></li>
+    <li><strong>Prices and package names are inconsistent</strong> (USD and IDR mixed, "per person" sometimes missing, two packages share the same name). <a href="#E1">E1</a> <a href="#E2">E2</a></li>
+  </ol>
+</div>
+
+<h2 id="status" style="border-top:0;margin-top:40px">Fix status</h2>
+<p>Fixes were applied without changing the layout, typefaces, colour family or where images sit. The gold text was deepened to the same hue, and some images were swapped in the same slots. Everything was re-checked on the rebuilt site at both widths: no contrast failures, no skipped headings, no text under 12px, a canonical URL on every page and the correct 404 title.</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>ID</th><th>Status</th><th>What changed / why not</th></tr></thead>
+  <tbody>
+    <tr><td>A1</td><td class="done">Fixed</td><td>New <code>--color-gold-ink</code> <code>#8F6419</code> for text on light backgrounds (headings, nav, buttons, links, prices). Borders, fills and icons keep <code>#C9902E</code>. Button hover text is now dark on the gold fill.</td></tr>
+    <tr><td>A2</td><td class="done">Fixed</td><td><code>--color-mute</code> changed to <code>#6B6B6B</code>; the footer strip is now white/60 at 12px.</td></tr>
+    <tr><td>A3</td><td class="done">Fixed</td><td>Arrow links have a 44px tap area with no layout change. Footer links and rows have more spacing.</td></tr>
+    <tr><td>A4</td><td class="done">Fixed</td><td>Small buttons and the footer strip are now 12px.</td></tr>
+    <tr><td>A5</td><td class="done">Fixed</td><td>Each gallery photo has its own description; tabs read as "Spa &amp; Retreat, 11 photos".</td></tr>
+    <tr><td>A6 / E2</td><td class="done">Fixed</td><td>Packages that share a name show the occupancy in the title, e.g. "Nature Lover Ayurvedic Experience (Couple)".</td></tr>
+    <tr><td>B1</td><td class="done">Mostly fixed</td><td>The Treatwell screenshot is cropped to just the studio photos (page header and arrows removed). The offer poster is replaced with a Bamboo Villa photo. The Beauty tile is reframed on the facial, away from the other brand's logo. The microblading hero is now the brow-shaping photo, and the before/after collage moved to the booking panel. The watermarked wedding photo is removed. <b>Not changed:</b> the dark leaf texture on the Home and 404 heroes (part of the hero design) and the stock beauty photos (real photos are needed).</td></tr>
+    <tr><td>B2</td><td>Partly</td><td>Wellness hero → a 1280px spa photo; Villa banner → a 1400px pool photo. The News hero (1200px) and 800px room photos stay: WordPress has no larger originals, so they need new photography.</td></tr>
+    <tr><td>B3 / C1</td><td class="done">Fixed</td><td>The last section no longer fills the whole screen. Image closers get a steady 352–448px height, and <code>sizes</code> now accounts for the cropped width, so the browser loads sharp images. The Villa facilities section has no empty band.</td></tr>
+    <tr><td>B4</td><td class="done">Fixed</td><td>Mobile treatment thumbnails are square instead of thin strips.</td></tr>
+    <tr><td>B5</td><td class="done">Fixed</td><td>Bali tiles are reframed with <code>object-position</code>.</td></tr>
+    <tr><td>B6</td><td>Partly</td><td>The Ayurveda tab and Villa banner no longer repeat nearby photos. The packages still draw on the same few villa photos, which are all the library has.</td></tr>
+    <tr><td>C2</td><td>Improved</td><td>Shorter closers mean much less empty space. Remaining cards are centred by design.</td></tr>
+    <tr><td>C3, D3, D4</td><td>Not changed</td><td>Card styles, chips and page length are layout and design choices, so I left them as you asked.</td></tr>
+    <tr><td>C4</td><td class="done">Fixed</td><td>All review quotes use the same 16px size.</td></tr>
+    <tr><td>C5</td><td class="done">Fixed</td><td>News cards show the opening line, and photos are framed higher so heads aren't cut off.</td></tr>
+    <tr><td>C6 / E6</td><td class="done">Fixed</td><td>The Villa location line moved under the intro, and the intro now names all three stays. The Bali "Stay" text now describes the stay.</td></tr>
+    <tr><td>C7</td><td class="done">Fixed</td><td>The active tab uses white text with a stronger gold bar, and there's more space before the grid.</td></tr>
+    <tr><td>C8</td><td class="done">Fixed</td><td>Short descriptions added to the four nail treatments (please check the wording).</td></tr>
+    <tr><td>C9 / C10</td><td class="done">Fixed</td><td>Hero buttons are full width on phones; plain headers align on the text baseline.</td></tr>
+    <tr><td>D1</td><td>Improved</td><td>Step photos are a steady 2:1 and the side photo is framed on the guests. The section's content is unchanged.</td></tr>
+    <tr><td>D2</td><td class="done">Fixed</td><td>Footer rows have more spacing; font size unchanged.</td></tr>
+    <tr><td>E1</td><td>Partly</td><td>"per person" added to Refresh your Soul. Mixing USD and IDR needs your decision on an exchange rate.</td></tr>
+    <tr><td>E3</td><td>Partly</td><td>"Switzerland" in the nav now shows an external-link arrow. Both Swiss blocks on Home stay (layout).</td></tr>
+    <tr><td>E4</td><td>Not changed</td><td>News needs new posts.</td></tr>
+    <tr><td>E5 / E7</td><td class="done">Fixed</td><td>The +62 number leads on Bali contacts; the brow CTA heading is gold and an <code>h2</code>.</td></tr>
+    <tr><td>F1–F4</td><td class="done">Fixed</td><td>Canonical URL on every page, "Page not found" title (also for unknown slugs), H2s on Packages and Wellness, longer news descriptions.</td></tr>
+    <tr><td>F5</td><td class="done">Not an issue</td><td>The maps load correctly. The grey blocks were the screenshot being taken before the lazy maps finished loading. The "empty right third" on Bali was the map too.</td></tr>
+    <tr><td>New</td><td class="done">Fixed</td><td>A 1px pale seam at the right edge of every gold button (the gradient fill didn't reach the border).</td></tr>
+  </tbody>
+</table>
+</div>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#status">Fix status</a>
+  <a href="#a11y">A · Contrast &amp; accessibility</a>
+  <a href="#images">B · Images</a>
+  <a href="#layout">C · Alignment &amp; spacing</a>
+  <a href="#density">D · Congestion</a>
+  <a href="#content">E · Consistency &amp; content</a>
+  <a href="#seo">F · SEO &amp; technical</a>
+  <a href="#pages">Page by page</a>
+  <a href="#optimise">Vercel size optimisation</a>
+  <a href="#passed">What's working</a>
+</nav>
+
+<!-- ============ A ============ -->
+<h2 id="a11y">A · Contrast &amp; accessibility</h2>
+
+<div class="finding" id="A1">
+  <div class="fhead"><span class="id">A1</span><span class="sev high">High</span><h3>Gold text fails contrast everywhere</h3>
+  <span class="pages">All pages: navigation, every heading, outline buttons, "Explore more" links, card titles, prices</span></div>
+  <dl>
+    <dt>Problem</dt><dd><span class="swatch" style="background:#c9902e"></span><code>#C9902E</code> scores 2.8:1 on white and 2.5:1 on the grey <code>#F2F2F2</code> bands. <span class="swatch" style="background:#cea642"></span><code>#CEA642</code> (active nav, hover) scores 2.29:1. WCAG AA needs 4.5:1 for normal text and 3:1 for large text, so even the 48px page titles fail. The 12px uppercase nav and button labels are the hardest to read.</dd>
+    <dt>Fix</dt><dd>Add a darker text gold, e.g. <span class="swatch" style="background:#8f6419"></span><code>#8F6419</code> (5.2:1 on white, 4.7:1 on mist). Use it for <code>h1–h4</code>, <code>.btn</code>, <code>.link-arrow</code> and the nav labels in <code>app/globals.css</code>. Keep the current gold for fills, borders, icons and text on dark backgrounds, where it passes (5.7:1 on <code>#222</code>).</dd>
+  </dl>
+</div>
+
+<div class="finding" id="A2">
+  <div class="fhead"><span class="id">A2</span><span class="sev med">Medium</span><h3>Grey meta text is too light</h3>
+  <span class="pages">News dates, "Included in every package", "60 min" durations, footer bottom line</span></div>
+  <dl>
+    <dt>Problem</dt><dd><code>#7A7A7A</code> on mist is 3.83:1. The 11px footer strip "UBUD · BALI | ERLENBACH · SWITZERLAND" on <code>#222</code> is 3.71:1.</dd>
+    <dt>Fix</dt><dd>Use <code>#6B6B6B</code> (4.76:1 on mist) for <code>--color-mute</code> on light backgrounds. On the footer use <code>white/60</code> or lighter, at 12px or more.</dd>
+  </dl>
+</div>
+
+<div class="finding" id="A3">
+  <div class="fhead"><span class="id">A3</span><span class="sev med">Medium</span><h3>Tap targets are too small on mobile</h3>
+  <span class="pages">Footer (all pages), "All packages", "All news", "Full beauty menu", contact email links</span></div>
+  <dl>
+    <dt>Problem</dt><dd>Footer "Explore" links are 17px tall, the footer email and phone links 19px, and arrow text links 20px, all with about 6px between rows. That is below the 24px WCAG 2.2 minimum and well under the 44px that fingers need.</dd>
+    <dt>Fix</dt><dd>Give links <code>py-2</code> (or <code>min-h-11</code> on mobile) and increase the footer <code>gap-y</code>. In <code>components/Footer.tsx</code> the Explore grid uses <code>gap-y-1.5</code>.</dd>
+  </dl>
+</div>
+
+<div class="finding" id="A4">
+  <div class="fhead"><span class="id">A4</span><span class="sev low">Low</span><h3>11px text</h3><span class="pages">"Book now" and "Ask on WhatsApp" small buttons, footer strip</span></div>
+  <dl><dt>Fix</dt><dd>Raise <code>.btn-sm</code> from 0.6875rem to 0.75rem or more. Text this small in uppercase with wide letter-spacing is hard to read.</dd></dl>
+</div>
+
+<div class="finding" id="A5">
+  <div class="fhead"><span class="id">A5</span><span class="sev low">Low</span><h3>Gallery alt text and tab names are generic</h3><span class="pages">/marni-gallery/</span></div>
+  <dl><dt>Problem</dt><dd>All 12 photos in a tab share the alt text "Spa &amp; Retreat at Marni Alas Retreat". Screen readers hear the tab names as "SPA &amp; RETREAT12" because the count is glued to the label.</dd>
+  <dt>Fix</dt><dd>Write one descriptive alt per photo in <code>data/gallery.ts</code>. Wrap the count in <code>&lt;span aria-label="12 photos"&gt;</code> or add a visually hidden separator.</dd></dl>
+</div>
+
+<div class="finding" id="A6">
+  <div class="fhead"><span class="id">A6</span><span class="sev low">Low</span><h3>Two package cards have the same accessible name</h3><span class="pages">Home, /package/, /wellness-in-bali/, package detail</span></div>
+  <dl><dt>Problem</dt><dd>The link names for the single and couple versions are both "Nature Lover Ayurvedic Experience, 4 Days / 3 Nights" (the same happens with "Luxury"). Include the occupancy in the label.</dd></dl>
+</div>
+
+<!-- ============ B ============ -->
+<h2 id="images">B · Images: unsuitable, low-resolution, badly cropped</h2>
+
+<div class="finding" id="B1">
+  <div class="fhead"><span class="id">B1</span><span class="sev high">High</span><h3>Images that don't suit the design</h3><span class="pages">Home, Bali, Microblading, Gallery, 404</span></div>
+  <dl>
+    <dt>Problems</dt><dd><ul>
+      <li><b>Home, Kosmetikstudio panel:</b> <code>Kosmetik-Studio-Im-Hof-2.jpg</code> is a <i>screenshot of the Treatwell web page</i>, including its "Termin buchen" button, star rating and carousel arrows. It looks broken and is unreadable on mobile.</li>
+      <li><b>Home, Special offer:</b> <code>Marni-Promotion.jpg</code> is a social-media poster with the price and inclusions baked in. It repeats the card next to it, the small text is illegible on mobile, and screen readers can't read it.</li>
+      <li><b>Bali, "Beauty" tile:</b> the crop shows a staff uniform with the logo <i>"Mahottama Wellness Hospitality"</i>, which is a different brand name.</li>
+      <li><b>Microblading hero:</b> a stock before/after collage of two eyes with a visible horizontal seam through the middle. It doesn't match the warm Balinese photography elsewhere.</li>
+      <li><b>Beauty cards:</b> clean stock shots (cucumbers, nail polish) sit next to real in-house photos (pedicure), so the styles clash.</li>
+      <li><b>Gallery:</b> a Legong dancer photo with a visible photographer watermark ("…RPHOTO", bottom-left) and a wedding photo, neither of which shows the retreat.</li>
+      <li><b>Home hero and 404:</b> both use a dark leaf texture cropped from a PDF catalogue page (<code>SPA-Beauty-Catalogue_page1_image1.jpg</code>). It shows nothing of the villa or spa and leaves the right 60% of the hero empty.</li>
+    </ul></dd>
+    <dt>Fix</dt><dd>Replace the Treatwell screenshot with a real studio photo. Use a clean villa photo for the offer and keep the details as text. Re-crop or replace the Beauty tile. Use a real retreat photo (villa, pool, flower bath) for the home hero. Remove watermarked images.</dd>
+  </dl>
+  <div class="pair">
+    <figure><img src="img/home-welcome-studio.jpg" alt="Home page: welcome cards and Treatwell screenshot" loading="lazy" width="1000" height="625"><figcaption>Home: the Treatwell website screenshot (with its UI chrome) used as a photo. The bordered "Welcome" card has empty space above the logo (C2).</figcaption></figure>
+    <figure class="m"><img src="img/m-home-studio.jpg" alt="Mobile home: Treatwell screenshot" loading="lazy" width="390" height="900"><figcaption>Mobile: the screenshot text can't be read.</figcaption></figure>
+  </div>
+  <figure><img src="img/microblading-hero.jpg" alt="Microblading hero collage" loading="lazy" width="1000" height="528"><figcaption>Microblading: stock collage with a visible seam.</figcaption></figure>
+</div>
+
+<div class="finding" id="B2">
+  <div class="fhead"><span class="id">B2</span><span class="sev high">High</span><h3>Low-resolution photos stretched to full width</h3><span class="pages">Wellness, News, Villa, Home hero, villa carousels, package cards</span></div>
+  <dl>
+    <dt>Problem</dt><dd>86 of the 138 photos are 800px wide or less. The full-bleed heroes stretch them:
+      <ul>
+        <li><b>Wellness hero</b> <code>MARC0003_Yoga.jpg</code>: an 800px source shown 1440px wide (1.8×, or 3.6× on a retina screen). It is visibly blurry and the subjects' heads are cut off.</li>
+        <li><b>News hero</b> <code>puri-manuaba-tour.jpeg</code> and <b>Villa hero</b> <code>precidential-room.jpg</code>: 1200px sources in 1440×350 strips.</li>
+        <li><b>Villa room carousels:</b> 800px sources shown about 800 CSS px wide, so they look soft on any 2× display.</li>
+      </ul></dd>
+    <dt>Fix</dt><dd>Get the originals at 2000px or more for every hero, either from the photographer or the WordPress originals before resizing. Until then, don't run small photos full-bleed: use the <code>split</code> hero variant, or cap the hero width at the source width.</dd>
+  </dl>
+  <figure><img src="img/wellness-hero-tabs.jpg" alt="Wellness hero and tabs" loading="lazy" width="1000" height="625"><figcaption>Wellness: soft 800px yoga photo stretched across 1440px, with faces cropped off. The category tiles sit right on top of the treatment grid (C7).</figcaption></figure>
+</div>
+
+<div class="finding" id="B3">
+  <div class="fhead"><span class="id">B3</span><span class="sev high">High</span><h3>Landscape photos squeezed into tall tiles (heavy crop and blur)</h3><span class="pages">Bali "Stay at", Gallery "See it for yourself", Package detail "More packages", Packages "How to book", Wellness "Make it a retreat"</span></div>
+  <dl>
+    <dt>Problem</dt><dd>The <code>.section-end-grow</code> rule (see C1) stretches these cards to the full screen height, giving boxes such as 329×535. A 3:2 photo in that box shows only about 40% of the image (2.4× crop). The <code>sizes</code> hint is based on box <i>width</i> (22vw ≈ 316px), so the browser downloads a 316px image and stretches it 2.4× to fill the height. The "How to book" photo is the worst case: pixelated, with the guest cut in half.</dd>
+    <dt>Fix</dt><dd>Give these tiles a fixed aspect ratio (<code>aspect-[4/5]</code> or <code>aspect-[3/4]</code>) instead of filling the height. If a tall tile is wanted, raise <code>sizes</code> to match the rendered height × aspect, e.g. <code>(min-width:1024px) 40vw</code>. Files: <code>components/Closers.tsx</code>, <code>app/bali/page.tsx:148</code>.</dd>
+  </dl>
+  <div class="pair">
+    <figure><img src="img/packages-howto.jpg" alt="How to book section" loading="lazy" width="1000" height="417"><figcaption>Packages: the blurry, half-cropped side photo next to step cards that each have their own photo (D1).</figcaption></figure>
+    <figure><img src="img/gallery-tiles.jpg" alt="Gallery closers" loading="lazy" width="1000" height="799"><figcaption>Gallery: watermarked dancer photo (B1) above tall, soft closer tiles (B3).</figcaption></figure>
+  </div>
+</div>
+
+<div class="finding" id="B4">
+  <div class="fhead"><span class="id">B4</span><span class="sev med">Medium</span><h3>Mobile treatment thumbnails are thin slivers</h3><span class="pages">/wellness-in-bali/ and /microblading-in-bali/ on mobile</span></div>
+  <dl>
+    <dt>Problem</dt><dd>On mobile each card's photo is a 104×228 strip cut from a 3:2 photo (3.3× crop). The result shows fragments of backs, hands and bowls instead of the treatment.</dd>
+    <dt>Fix</dt><dd>Use a square thumbnail aligned to the top (<code>aspect-square self-start</code>) or stack the photo above the text at 16:10 (<code>components/TreatmentCard.tsx</code>).</dd>
+  </dl>
+  <div class="pair">
+    <figure class="m"><img src="img/m-wellness.jpg" alt="Mobile wellness page" loading="lazy" width="390" height="1300"><figcaption>Mobile Wellness: sliver thumbnails, a gold title over a busy photo, and the low-contrast "AYURVEDA" tab.</figcaption></figure>
+    <figure class="m"><img src="img/m-microblading.jpg" alt="Mobile microblading cards" loading="lazy" width="390" height="900"><figcaption>Mobile Microblading: cards without a description are shorter, so the column looks ragged (C8).</figcaption></figure>
+  </div>
+</div>
+
+<div class="finding" id="B5">
+  <div class="fhead"><span class="id">B5</span><span class="sev med">Medium</span><h3>Portrait photos cut into wide strips on the Bali page</h3><span class="pages">/bali/</span></div>
+  <dl><dt>Problem</dt><dd>Portrait spa photos fill 678×262 bento tiles (3.9× crop). The "Ayurveda massage" tile shows a torso holding a copper pot with the face cut off.</dd>
+  <dt>Fix</dt><dd>Choose landscape images for wide tiles, or set <code>object-position</code> per image.</dd></dl>
+  <figure><img src="img/bali-bento-stay.jpg" alt="Bali page bento and stay section" loading="lazy" width="1000" height="1146"><figcaption>Bali: the "Beauty" tile is a uniform-logo crop, and the "Stay at" section has a tall blurry photo (B3). The empty right third is the map, which hadn't loaded yet when the screenshot was taken (F5).</figcaption></figure>
+</div>
+
+<div class="finding" id="B6">
+  <div class="fhead"><span class="id">B6</span><span class="sev low">Low</span><h3>The same photos repeat</h3><span class="pages">Packages, Wellness, Villa</span></div>
+  <dl><dt>Problem</dt><dd>The 7 package cards use 3–4 Bamboo Villa shots; the same exterior appears on cards 1, 3 and 6. The Ayurveda tab tile shows the same photo as the Udvartana card right below it. The Villa hero repeats the first slide of the carousel underneath.</dd></dl>
+</div>
+
+<!-- ============ C ============ -->
+<h2 id="layout">C · Alignment &amp; spacing</h2>
+
+<div class="finding" id="C1">
+  <div class="fhead"><span class="id">C1</span><span class="sev high">High</span><h3>The last section is stretched to fill the screen, leaving empty bands</h3><span class="pages">Villa, Contacts, Bali, Gallery, Wellness, Package detail (every page using <code>.section-end</code>)</span></div>
+  <dl>
+    <dt>Problem</dt><dd><code>.section-end</code> in <code>app/globals.css</code> forces the final section to <code>100svh − header − footer</code>. When the content is short, the extra space becomes empty bands. On Villa there is about 60px above and 200px below "Resort facilities". When the content is images, they stretch instead (B3). On phones the footer is also forced to fill a whole screen (<code>max-md:min-h-[calc(100svh-…)]</code>).</dd>
+    <dt>Fix</dt><dd>Remove the min-height fill and let sections size to their content with the normal <code>.section</code> padding. Drop the forced-height footer on mobile.</dd>
+  </dl>
+  <figure><img src="img/villa-facilities.jpg" alt="Villa resort facilities section with empty space" loading="lazy" width="1000" height="451"><figcaption>Villa: a short section padded out to full screen height.</figcaption></figure>
+</div>
+
+<div class="finding" id="C2">
+  <div class="fhead"><span class="id">C2</span><span class="sev med">Medium</span><h3>Cards with dead space at the top and content pushed down</h3><span class="pages">Home (Welcome, Reviews), Microblading CTA, Packages "Plan a custom retreat", Wellness "Not sure which to choose?"</span></div>
+  <dl>
+    <dt>Problem</dt><dd>These cards stretch to the row height and push their content down or into the middle. The Microblading CTA has about 180px of empty space above its heading, the Welcome card about 110px above the logo, and the review quotes about 120px above the text. The boxes look half-empty.</dd>
+    <dt>Fix</dt><dd>Align content to the top (<code>justify-start</code>) with consistent padding, or shrink the card to its content and centre it vertically in the row.</dd>
+  </dl>
+  <div class="pair">
+    <figure><img src="img/microblading-cards-cta.jpg" alt="Microblading cards and CTA" loading="lazy" width="1000" height="799"><figcaption>Microblading: CTA heading pushed to the bottom of a mostly empty box. The manicure and pedicure row is shorter than the row above (C8).</figcaption></figure>
+    <figure><img src="img/home-reviews.jpg" alt="Home reviews" loading="lazy" width="1000" height="486"><figcaption>Home reviews: text floats mid-card, and the two cards use different text sizes (C4).</figcaption></figure>
+  </div>
+</div>
+
+<div class="finding" id="C3">
+  <div class="fhead"><span class="id">C3</span><span class="sev med">Medium</span><h3>Too many card styles, so there's no visual rhythm</h3><span class="pages">Site-wide, most visible on Home</span></div>
+  <dl>
+    <dt>Problem</dt><dd>The site uses at least five card treatments: gold-outline box, grey fill, white with a hairline border, photo with dark overlay, and white tiles on grey. The first row of Home alone mixes a gold-outline card with two grey photo cards. The next row switches to a 7/5 split panel with a different height.</dd>
+    <dt>Fix</dt><dd>Pick two card types (photo-overlay for navigation, plain white or grey for content) and keep the gold outline for one primary CTA per page.</dd>
+  </dl>
+</div>
+
+<div class="finding" id="C4">
+  <div class="fhead"><span class="id">C4</span><span class="sev med">Medium</span><h3>Review cards use different type sizes</h3><span class="pages">Home</span></div>
+  <dl><dt>Problem</dt><dd>The first review is about 18px light and the next about 14px regular, which looks like a bug rather than a featured card. On mobile the next card peeks in at the smaller size.</dd>
+  <dt>Fix</dt><dd>Use one quote size. To feature a review, use a background or layout change, not a font change (<code>components/ReviewCard.tsx</code>).</dd></dl>
+</div>
+
+<div class="finding" id="C5">
+  <div class="fhead"><span class="id">C5</span><span class="sev med">Medium</span><h3>News cards are mostly empty white space</h3><span class="pages">/news/, news detail "More news"</span></div>
+  <dl><dt>Problem</dt><dd>In the horizontal cards the photo takes half the card and a small title floats in the middle of the other half, leaving about 60% blank. The First Aid photo crops off heads.</dd>
+  <dt>Fix</dt><dd>Use vertical cards (photo on top at 16:10, then title and excerpt), or add the excerpt to fill the text half.</dd></dl>
+  <figure><img src="img/news-cards.jpg" alt="News earlier stories cards" loading="lazy" width="1000" height="431"><figcaption>News: half-empty horizontal cards.</figcaption></figure>
+</div>
+
+<div class="finding" id="C6">
+  <div class="fhead"><span class="id">C6</span><span class="sev low">Low</span><h3>Villa page title row looks disconnected</h3><span class="pages">/marni-villa-ubud/</span></div>
+  <dl><dt>Problem</dt><dd>The title and intro sit on the left. The "Book via WhatsApp" button sits top-right with the location line right-aligned below it, so the two columns don't share a baseline. The intro says "a secluded two-bedroom villa", but the page lists three different accommodations.</dd></dl>
+  <figure><img src="img/villa-hero.jpg" alt="Villa hero" loading="lazy" width="1000" height="389"><figcaption>Villa: soft 1200px hero (B2) and a split title row.</figcaption></figure>
+</div>
+
+<div class="finding" id="C7">
+  <div class="fhead"><span class="id">C7</span><span class="sev low">Low</span><h3>Wellness category tiles crowd the treatment grid</h3><span class="pages">/wellness-in-bali/</span></div>
+  <dl><dt>Problem</dt><dd>The Ayurveda, Massage and Beauty photo tiles sit 20px above a grid of photo cards with the same visual weight, so they read as one cluttered block. The active tab is shown only by gold text on a photo, which is barely visible (especially "AYURVEDA" on mobile).</dd>
+  <dt>Fix</dt><dd>Make the tabs a slim text segmented control with a clear active fill, and leave 32–48px before the grid.</dd></dl>
+</div>
+
+<div class="finding" id="C8">
+  <div class="fhead"><span class="id">C8</span><span class="sev low">Low</span><h3>Ragged card rows</h3><span class="pages">Microblading, Wellness</span></div>
+  <dl><dt>Problem</dt><dd>Manicure and pedicure cards have no duration or description, so their row is about 100px shorter than the row above. Eleven identical outline "Book now" buttons add a lot of visual noise.</dd>
+  <dt>Fix</dt><dd>Add short descriptions and durations, and keep the button pinned to the bottom (<code>mt-auto</code>). Consider making the whole card the link, with one WhatsApp CTA per section.</dd></dl>
+</div>
+
+<div class="finding" id="C9">
+  <div class="fhead"><span class="id">C9</span><span class="sev low">Low</span><h3>Stacked hero buttons have different widths on mobile</h3><span class="pages">Home and 404 on mobile</span></div>
+  <dl><dt>Fix</dt><dd>When the buttons wrap, make them full width (<code>w-full sm:w-auto</code>) so their edges line up.</dd></dl>
+</div>
+
+<div class="finding" id="C10">
+  <div class="fhead"><span class="id">C10</span><span class="sev low">Low</span><h3>Plain heading bands have misaligned text</h3><span class="pages">Gallery, Packages</span></div>
+  <dl><dt>Problem</dt><dd>On Gallery the intro line sits about 12px lower than the title baseline, inside a 150px grey band that holds only one sentence. On Packages the intro is top-aligned while the title is vertically centred.</dd>
+  <dt>Fix</dt><dd>Use <code>lg:items-baseline</code> in the <code>plain</code> variant of <code>components/PageHero.tsx</code>.</dd></dl>
+</div>
+
+<!-- ============ D ============ -->
+<h2 id="density">D · Congested design</h2>
+
+<div class="finding" id="D1">
+  <div class="fhead"><span class="id">D1</span><span class="sev med">Medium</span><h3>"How to book" packs too much into one section</h3><span class="pages">/package/</span></div>
+  <dl><dt>Problem</dt><dd>One section holds a side photo, a heading, a CTA button, three step cards each with its own photo and footer line, and a row of five chips. The step photos repeat the same villa images and add nothing to the steps.</dd>
+  <dt>Fix</dt><dd>Use three text-only numbered steps, one CTA and the "included" checklist, and remove the side photo.</dd></dl>
+</div>
+
+<div class="finding" id="D2">
+  <div class="fhead"><span class="id">D2</span><span class="sev med">Medium</span><h3>The footer is dense</h3><span class="pages">All pages</span></div>
+  <dl><dt>Problem</dt><dd>Four columns of 14px text with 6px row gaps, two address blocks with inline icons, a second logo and a tagline. On mobile it's a full screen of small text.</dd>
+  <dt>Fix</dt><dd>Use 15–16px text and 10–12px row gaps, show one phone per location, and move the bottom strip text into the copyright line.</dd></dl>
+</div>
+
+<div class="finding" id="D3">
+  <div class="fhead"><span class="id">D3</span><span class="sev low">Low</span><h3>Too many chips and boxes</h3><span class="pages">Villa, Bali, Packages hero</span></div>
+  <dl><dt>Problem</dt><dd>Each villa shows 7–9 boxed amenity chips. "Resort facilities" uses 8 white boxes for 8 one-line items. The chips on "Meet Marni" wrap with a single orphan chip.</dd>
+  <dt>Fix</dt><dd>Use a simple two- or three-column checklist without boxes.</dd></dl>
+</div>
+
+<div class="finding" id="D4">
+  <div class="fhead"><span class="id">D4</span><span class="sev med">Medium</span><h3>Very long pages on mobile</h3><span class="pages">Home 5,474px · Packages 5,130px · Wellness 4,791px (at 390px wide)</span></div>
+  <dl><dt>Problem</dt><dd>The Packages page stacks 7 full-height photo cards. Wellness stacks 11 treatment cards, each with a "Book now" button. It takes a lot of scrolling to reach the footer contacts.</dd>
+  <dt>Fix</dt><dd>Use shorter package cards on mobile (photo strip plus text), filter treatments by tab, and add a sticky "WhatsApp us" button on mobile.</dd></dl>
+  <figure class="m"><img src="img/m-packages.jpg" alt="Mobile packages" loading="lazy" width="390" height="1500"><figcaption>Mobile Packages: full-height cards, and two cards with the same name (E2).</figcaption></figure>
+</div>
+
+<!-- ============ E ============ -->
+<h2 id="content">E · Consistency &amp; content</h2>
+
+<div class="finding" id="E1">
+  <div class="fhead"><span class="id">E1</span><span class="sev med">Medium</span><h3>Prices are inconsistent</h3><span class="pages">Home, Packages, Wellness, Package detail</span></div>
+  <dl><dt>Problem</dt><dd>Prices appear as "USD 435" (no unit), "USD 895 per person", "USD 1,170 for all", the special offer in IDR 9.600.000, and treatments in IDR. A guest can't compare them.</dd>
+  <dt>Fix</dt><dd>Pick one currency, or show both, e.g. "IDR 9.600.000 (≈ USD 590)". Always state the unit: per person, per stay or for 2 guests.</dd></dl>
+  <figure><img src="img/home-packages-offer.jpg" alt="Home packages and special offer" loading="lazy" width="1000" height="694"><figcaption>Home: USD packages next to an IDR offer, and a poster with baked-in text (B1).</figcaption></figure>
+</div>
+
+<div class="finding" id="E2">
+  <div class="fhead"><span class="id">E2</span><span class="sev med">Medium</span><h3>Two packages share the same name</h3><span class="pages">Packages, Home, Wellness, Package detail</span></div>
+  <dl><dt>Problem</dt><dd>"Nature Lover Ayurvedic Experience" and "Luxury Ayurvedic Experience" each appear twice. The only difference is a 12px uppercase line (Single / Couple / 2 Pax / 4 Pax).</dd>
+  <dt>Fix</dt><dd>Put the occupancy in the title ("… for Couples") or group the variants into one card with a toggle.</dd></dl>
+</div>
+
+<div class="finding" id="E3">
+  <div class="fhead"><span class="id">E3</span><span class="sev low">Low</span><h3>Home repeats the Switzerland information</h3><span class="pages">Home</span></div>
+  <dl><dt>Problem</dt><dd>The "Erlenbach – Switzerland" card is followed directly by a full Kosmetikstudio panel with the same message. The "Switzerland" nav item opens an external site in a new tab without any indication.</dd>
+  <dt>Fix</dt><dd>Keep one of the two blocks, and add an external-link icon to the nav item.</dd></dl>
+</div>
+
+<div class="finding" id="E4">
+  <div class="fhead"><span class="id">E4</span><span class="sev low">Low</span><h3>News is out of date and thin</h3><span class="pages">/news/, /news/*</span></div>
+  <dl><dt>Problem</dt><dd>The newest post is from December 2022, and each post page has a single sentence of body text. Old news in the main navigation makes the business look inactive.</dd>
+  <dt>Fix</dt><dd>Add current posts, or move News to the footer until there is new content.</dd></dl>
+</div>
+
+<div class="finding" id="E5">
+  <div class="fhead"><span class="id">E5</span><span class="sev low">Low</span><h3>Bali contact card leads with the Swiss number</h3><span class="pages">/contacts/</span></div>
+  <dl><dt>Fix</dt><dd>Make the Indonesian number (+62) the solid primary button on the Bali card.</dd></dl>
+</div>
+
+<div class="finding" id="E6">
+  <div class="fhead"><span class="id">E6</span><span class="sev low">Low</span><h3>Copy doesn't match the section</h3><span class="pages">/bali/</span></div>
+  <dl><dt>Problem</dt><dd>Under "Stay at Marni Alas Retreat" the text talks about the spa's herbal tradition rather than the stay.</dd></dl>
+</div>
+
+<div class="finding" id="E7">
+  <div class="fhead"><span class="id">E7</span><span class="sev low">Low</span><h3>One CTA heading uses a different colour</h3><span class="pages">/microblading-in-bali/</span></div>
+  <dl><dt>Problem</dt><dd>"Ready for natural, defined brows?" is black, while every other heading on the site is gold.</dd></dl>
+</div>
+
+<!-- ============ F ============ -->
+<h2 id="seo">F · SEO &amp; technical</h2>
+
+<div class="finding" id="F1">
+  <div class="fhead"><span class="id">F1</span><span class="sev med">Medium</span><h3>No canonical URLs</h3><span class="pages">All pages</span></div>
+  <dl><dt>Problem</dt><dd>No page has <code>&lt;link rel="canonical"&gt;</code>. With <code>trailingSlash: true</code>, old WordPress redirects and a <code>[slug]</code> catch-all, duplicate URLs are likely.</dd>
+  <dt>Fix</dt><dd>Add <code>alternates: { canonical: "./" }</code> to the root metadata (with <code>metadataBase</code> already set) or per page.</dd></dl>
+</div>
+
+<div class="finding" id="F2">
+  <div class="fhead"><span class="id">F2</span><span class="sev low">Low</span><h3>404 page uses the home page title</h3><span class="pages">Any missing URL</span></div>
+  <dl><dt>Fix</dt><dd>Export <code>metadata = { title: "Page not found" }</code> from <code>app/not-found.tsx</code>.</dd></dl>
+</div>
+
+<div class="finding" id="F3">
+  <div class="fhead"><span class="id">F3</span><span class="sev low">Low</span><h3>Heading levels skip from H1 to H3</h3><span class="pages">/package/, /wellness-in-bali/</span></div>
+  <dl><dt>Fix</dt><dd>Add a visible or visually hidden H2 ("All packages", "Treatments") above the card grids.</dd></dl>
+</div>
+
+<div class="finding" id="F4">
+  <div class="fhead"><span class="id">F4</span><span class="sev low">Low</span><h3>Meta descriptions are too short</h3><span class="pages">/news/ (69 characters), news posts (about 75)</span></div>
+  <dl><dt>Fix</dt><dd>Aim for 120–155 characters.</dd></dl>
+</div>
+
+<div class="finding" id="F5">
+  <div class="fhead"><span class="id">F5</span><span class="sev info">Check</span><h3>Maps showed as blank grey in the test</h3><span class="pages">/contacts/, /bali/</span></div>
+  <dl><dt>Note</dt><dd>Re-checked: the maps load correctly. The full-page screenshot was taken before the lazy-loaded maps finished. Even so, each Google Maps embed typically pulls in around 1 MB of scripts. A static map image that links to Google Maps would be lighter and wouldn't leave a grey block while loading.</dd></dl>
+  <figure><img src="img/contacts-map.jpg" alt="Contacts map area" loading="lazy" width="1000" height="569"><figcaption>Contacts: the map area as captured.</figcaption></figure>
+</div>
+
+<!-- ============ Pages ============ -->
+<h2 id="pages">Page by page</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>Page</th><th>Main issues</th><th>Findings</th></tr></thead>
+  <tbody>
+    <tr><td>Home <code>/</code></td><td>Generic dark hero, Treatwell screenshot, poster image, mixed currencies, review type sizes, half-empty cards</td><td>A1 B1 C2 C3 C4 E1 E2 E3</td></tr>
+    <tr><td>About <code>/bali/</code></td><td>Uniform-logo "Beauty" tile, strip crops, tall blurry "Stay" photo, empty right third</td><td>A1 B1 B3 B5 C1 E6</td></tr>
+    <tr><td>Wellness</td><td>Blurry 800px hero, crowded tabs, sliver thumbnails on mobile, 11 Book buttons, H1→H3</td><td>A1 B2 B4 C7 C8 D4 F3</td></tr>
+    <tr><td>Microblading</td><td>Seamed stock collage, mixed stock/real photos, empty CTA box, black heading</td><td>A1 B1 B4 C2 C8 E7</td></tr>
+    <tr><td>Villa</td><td>Soft hero and carousels, disconnected title row, chip overload, stretched facilities section</td><td>A1 B2 B6 C1 C6 D3</td></tr>
+    <tr><td>Packages</td><td>Duplicate names, unit inconsistency, crowded "How to book", blurry side photo, H1→H3</td><td>B3 B6 D1 D4 E1 E2 F3</td></tr>
+    <tr><td>Package detail</td><td>Tall cropped "More packages" cards, duplicate names</td><td>B3 E1 E2</td></tr>
+    <tr><td>Gallery</td><td>Watermarked photo, generic alt text, blurry closer tiles, heading misalignment</td><td>A5 B1 B3 C10</td></tr>
+    <tr><td>News / post</td><td>Soft hero, half-empty cards, 2022 content, one-sentence posts</td><td>B2 C5 E4 F4</td></tr>
+    <tr><td>Contacts</td><td>Swiss number first on the Bali card, map area blank, stretched final section</td><td>C1 E5 F5</td></tr>
+    <tr><td>404</td><td>Home title, catalogue-texture hero</td><td>B1 F2</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============ Optimisation ============ -->
+<h2 id="optimise">Vercel size optimisation</h2>
+<p><strong>The deployable site is already small.</strong> Vercel uploads the source (about 15 MB, almost all of it <code>public/images</code>) and builds it remotely. The 365 MB <code>.next</code> folder on this machine is local build cache: it's gitignored and never uploaded.</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>Change</th><th>Effect</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>Recompressed 11 images (mozjpeg q82 / palette PNG, kept only where the file shrank ≥5%)</td><td>public/images 14.70 MB → 14.42 MB. The fetch script had already compressed them well.</td><td class="done">Done</td></tr>
+    <tr><td><code>.vercelignore</code> excludes <code>/audit</code>, <code>/scripts</code>, <code>*.md</code>, build caches</td><td>This report and the scripts never go into a deployment</td><td class="done">Done</td></tr>
+    <tr><td><code>images.deviceSizes</code> 8 → 4 widths, <code>imageSizes</code> 7 → 3, <code>qualities</code> [75, 85] → [75] (85 was never used)</td><td>Each photo gets about half as many optimised variants, so fewer Vercel image transformations and less image-cache storage</td><td class="done">Done</td></tr>
+    <tr><td><code>images.minimumCacheTTL</code> 4 h → 31 days</td><td>Optimised images are re-generated far less often. The image paths are dated, so to change a photo, add it under a new name.</td><td class="done">Done</td></tr>
+    <tr><td>Convert sources to WebP (−16%) or AVIF (−44%)</td><td>Not worth it: every reference in <code>data/</code> would need renaming, and <code>next/image</code> already serves WebP to browsers</td><td>Skipped</td></tr>
+    <tr><td>Replace the two Google Maps iframes with a static image and link</td><td>Saves roughly 1 MB of third-party JS per map view (bandwidth, not storage)</td><td>Recommended</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============ Passed ============ -->
+<h2 id="passed">What's already working</h2>
+<div class="pass"><ul>
+  <li>No JavaScript errors across all 24 page loads.</li>
+  <li>No horizontal overflow at 390px on any page.</li>
+  <li>Every image has an <code>alt</code> attribute; decorative ones are correctly empty.</li>
+  <li>Skip link, visible <code>:focus-visible</code> outlines, and a real dialog for the mobile menu that closes on Escape.</li>
+  <li>The gallery lightbox opens with a counter, arrows and a close button.</li>
+  <li>Maps are lazy-loaded, and the header height and image dimensions (from <code>data/image-sizes.json</code>) are reserved up front.</li>
+  <li>Old WordPress URLs redirect permanently; a sitemap and robots.txt are present.</li>
+</ul></div>
+
+<p class="meta" style="margin-top:32px">Method: production build at localhost; agent-browser full-page screenshots at 1440×900 and 390×844 (device pixel ratio 1); an in-page script measured computed colour contrast, rendered vs. intrinsic image size, <code>object-fit</code> crop ratio, element bounding boxes, heading outline and metadata. Blur on retina screens will be roughly twice what is described here.</p>
+
+</div>
+</body>
+</html>

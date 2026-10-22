@@ -1,0 +1,8 @@
+# Keep the deployment upload to what the site actually serves.
+/audit
+/scripts
+/dogfood-output
+*.md
+*.tsbuildinfo
+.next
+node_modules
